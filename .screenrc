@@ -1,0 +1,7 @@
+vbell on
+nethack on
+screen -t shell 0
+hardstatus alwayslastline "%{=b}%{r} -[ %{b}%w %=%Y%M%d %c %{r} ]- "
+escape ^pp
+startup_message off
+defflow off
