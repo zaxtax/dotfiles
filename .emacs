@@ -160,7 +160,7 @@ If the new path's directories does not exist, create them."
            (set-variable 'indent-tabs-mode nil) )))
 
 ;; Agda2
-;;(add-to-list 'load-path "/home/zv/custom_builds/elisp/agda")
+;;(add-to-list 'load-path "~/custom_builds/elisp/agda")
 ;;(require 'agda2)
 
 ;; Planner Mode
@@ -200,10 +200,6 @@ If the new path's directories does not exist, create them."
 (add-to-list 'slime-lisp-implementations '(sbcl ("sbcl")))
 (add-hook 'clojure-mode '(lambda () (paredit-mode t)))
 
-;; This is where slime is loaded.
-;; (setq inferior-lisp-program "/usr/bin/sbcl")
-;; (add-to-list 'load-path "/home/zv/.sbcl/site/slime")
-
 
 (setq auto-mode-alist
       (append auto-mode-alist
@@ -226,16 +222,10 @@ If the new path's directories does not exist, create them."
 (autoload (quote switch-to-haskell) "inf-haskell"
   "Show the inferior-haskell buffer.  Start the process if needed." t nil)
 
-;; arc mode
-;; (load "/home/fourier/programming/arc/arc0/arc-mode.el")
-;; (setq auto-mode-alist (cons '("\\.arc$" . arc-mode) auto-mode-alist))
-
-(load "/home/zv/.emacs.d/js2.elc")
 (autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;; Set up matlab-mode to load on .m files
-(load "/home/zv/.emacs.d/matlab.el")
 (autoload 'matlab-mode "matlab" "Enter MATLAB mode." t)
 (setq auto-mode-alist (cons '("\\.m\\'" . matlab-mode) auto-mode-alist))
 (autoload 'matlab-shell "matlab" "Interactive MATLAB mode." t)
