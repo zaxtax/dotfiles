@@ -9,15 +9,15 @@
   (package-initialize))
 
 (when window-system 
-  (set-background-color "black")
-  (set-foreground-color "green")
-  (set-cursor-color "white")
-  (set-face-foreground 'region "black")
-  (set-face-background 'region "green")
-  (set-face-foreground 'mode-line "gray15")
-  (set-face-background 'mode-line "black")
-  (set-face-font 'default "6x10")
-  (set-face-font 'tooltip "6x10"))
+;;   (set-background-color "black")
+;;   (set-foreground-color "green")
+;;   (set-cursor-color "white")
+;;   (set-face-foreground 'region "black")
+;;   (set-face-background 'region "green")
+;;   (set-face-foreground 'mode-line "gray15")
+;;   (set-face-background 'mode-line "black")
+   (set-face-font 'default "6x10")
+   (set-face-font 'tooltip "6x10"))
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -65,11 +65,12 @@ If the new path's directories does not exist, create them."
 (global-set-key (key "M-<up>") 'windmove-up)              ; move to upper window
 (global-set-key (key "M-<down>") 'windmove-down)          ; move to downer window
 
+(load "/usr/share/emacs/site-lisp/proofgeneral/generic/proof-site.el")
+
 (require 'sclang)
 (require 'ido)
 (ido-mode t)
 
-;(iswitchb-mode 1)
 (scroll-bar-mode nil)
 (mouse-wheel-mode)
 
@@ -122,8 +123,6 @@ If the new path's directories does not exist, create them."
 (dynamic-completion-mode) 
 (global-set-key (kbd "M-<RETURN>") 'complete)
 
-(require 'php-mode)
-
 ;; Hide/Show tag
 (global-set-key (kbd "M-+") 'hs-toggle-hiding)
 
@@ -134,13 +133,6 @@ If the new path's directories does not exist, create them."
       (concat (expand-file-name "~/.backups/")
 	      (dired-replace-in-string "/" "|" file-name))
     (concat file-name "~")))
-
-(autoload 'run-prolog "prolog" "Start a Prolog sub-process." t)
-(autoload 'prolog-mode "prolog" "Major mode for editing Prolog programs." t)
-(autoload 'mercury-mode "prolog" "Major mode for editing Mercury programs." t)
-(setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
-                                ("\\.m$" . mercury-mode))
-                               auto-mode-alist))
 
 (setq auto-mode-alist (cons '("\\.ml\\w?" . tuareg-mode) auto-mode-alist))
 (autoload 'tuareg-mode "tuareg" "Major mode for editing Caml code" t)
@@ -156,17 +148,19 @@ If the new path's directories does not exist, create them."
       python-mode-hook
       '(lambda () (progn
            (set-variable 'py-indent-offset 4)
-           (set-variable 'py-smart-indentation nil)
+           (set-variable 'py-smart-indentation t)
            (set-variable 'indent-tabs-mode nil) )))
 
 ;; Agda2
-;;(add-to-list 'load-path "~/custom_builds/elisp/agda")
+;;(add-to-list 'load-path "/home/zv/custom_builds/elisp/agda")
 ;;(require 'agda2)
 
 ;; Planner Mode
 (add-to-list 'load-path "~/custom_builds/elisp/muse/lisp")
 (add-to-list 'load-path "~/custom_builds/elisp/planner")
 (add-to-list 'load-path "~/custom_builds/elisp/remember")
+(add-to-list 'load-path "~/custom_builds/elisp/zenburn-emacs")
+
 (setq planner-project "WikiPlanner")
 (setq muse-project-alist
       '(("WikiPlanner"
@@ -176,6 +170,8 @@ If the new path's directories does not exist, create them."
 	  :visit-link planner-visit-link))))
 (require 'planner)
 
+(require 'color-theme-zenburn)
+(color-theme-zenburn)
 
 (global-font-lock-mode t)
 (show-paren-mode t)
@@ -200,6 +196,10 @@ If the new path's directories does not exist, create them."
 (add-to-list 'slime-lisp-implementations '(sbcl ("sbcl")))
 (add-hook 'clojure-mode '(lambda () (paredit-mode t)))
 
+;; This is where slime is loaded.
+;; (setq inferior-lisp-program "/usr/bin/sbcl")
+;; (add-to-list 'load-path "/home/zv/.sbcl/site/slime")
+
 
 (setq auto-mode-alist
       (append auto-mode-alist
@@ -222,10 +222,12 @@ If the new path's directories does not exist, create them."
 (autoload (quote switch-to-haskell) "inf-haskell"
   "Show the inferior-haskell buffer.  Start the process if needed." t nil)
 
+(load "/home/zv/.emacs.d/js2.elc")
 (autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;; Set up matlab-mode to load on .m files
+(load "/home/zv/.emacs.d/matlab.el")
 (autoload 'matlab-mode "matlab" "Enter MATLAB mode." t)
 (setq auto-mode-alist (cons '("\\.m\\'" . matlab-mode) auto-mode-alist))
 (autoload 'matlab-shell "matlab" "Interactive MATLAB mode." t)
@@ -248,8 +250,6 @@ Word files dead." t)
 (autoload 'undoc-region-after-mime-decode "undoc" "" t)
 
 (global-set-key [(control tab)] 'bury-buffer)
-
-;(server-start)
 
 (defun darkroom-mode ()
         (interactive)

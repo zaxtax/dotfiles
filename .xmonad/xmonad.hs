@@ -17,6 +17,7 @@ import XMonad.Actions.UpdatePointer
 import XMonad.Actions.WindowBringer
 import XMonad.Prompt
 import XMonad.Prompt.Shell
+import XMonad.Prompt.Window
 import XMonad.Util.Run
 import XMonad.Layout.Tabbed hiding (fontName)
 import qualified XMonad.Layout.Named
@@ -24,7 +25,7 @@ import Data.IORef
 import qualified XMonad.StackSet as W
 
 import System.IO.Unsafe (unsafePerformIO)
-import Data.List (isPrefixOf)
+import Data.List (isPrefixOf, isInfixOf)
 
 import ViewDoc
 
@@ -35,8 +36,7 @@ layouts = LayoutHints.layoutHints $
            ||| (tiled `named` "Vert")
            ||| spiral (6/7)
            ||| Grid
-           ||| simpleTabbed
-           ||| Full)
+           ||| simpleTabbed)
   where tiled = reflectHoriz $ Tall nmaster delta ratio
   	nmaster = 2
 	ratio = 3/4
@@ -80,7 +80,8 @@ mykeys (XConfig {modMask = modm}) = M.fromList $
    --, ((modm, xK_f), (gridselectWindow defaultGSConfig) >>= (\w -> case w of
    --                      Just w -> windows (bringWindow w) >> focus w >> windows W.shiftMaster
    --                      Nothing -> return ()))
-   , ((modm, xK_g), goToSelected defaultGSConfig)
+   -- , ((modm, xK_g), goToSelected defaultGSConfig) -- shiny grid of windows
+   , ((modm, xK_g), windowPromptGoto  defaultXPConfig { searchPredicate = isInfixOf })
    , ((modm,                 xK_Right), sendMessage $ Go R)
    , ((modm,                 xK_Left ), sendMessage $ Go L)
    , ((modm,                 xK_Up   ), sendMessage $ Go U)
