@@ -1,21 +1,29 @@
 # The following lines were added by compinstall
-zstyle :compinstall filename '~/.zshrc'
+zstyle :compinstall filename '/home/zv/.zshrc'
 
 zstyle ':completion:*' completer _complete
 zstyle ':completion:*' menu select=1
 autoload -Uz compinit
 compinit
 # End of lines added by compinstall
+export GUROBI_HOME="/home/zv/upstream/gurobi500/linux64"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+export PATH=${GUROBI_HOME}/bin:/home/zv/upstream/android-sdk-linux/tools:/home/zv/godi/bin:/home/zv/godi/sbin:/home/zv/.cabal/bin:/sbin:/usr/sbin:$PATH
+export GRB_LICENSE_FILE=/home/zv/upstream/gurobi500/gurobi.lic
+# export MATLAB_JAVA=/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0/jre
 
 # make the prompt look like [user@host /dir] $
 RCMD_CMD=ssh;   export RCMD_CMD
 export PAGER=most
+export VISUALWORKS=/home/zv/vw7.6nc
 
 alias mathematica='mathematica -defaultvisual'
 alias ls='ls --color'
+alias todo="emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"t\")' 2> /dev/null "
+alias today="emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"a\")' 2> /dev/null "
 
-git_prompt_info() {
-  ref=$(git-symbolic-ref HEAD 2> /dev/null) || return
+function git_prompt_info() {
+  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
   echo " (${ref#refs/heads/})"
 }
 
@@ -31,7 +39,7 @@ case $TERM in
 esac
 
 precmd () {
-  PS1="[%n@%m %1d$(git_prompt_info)]%# ";
+  PS1='[%n@%m %1d$(git_prompt_info)]%# ';
   [[ -t 1 ]] || return
   case $TERM in
     *xterm*|rxvt|urxvt|rxvt-unicode|(dt|k|E|a)term) print -Pn "\e]2;%n@%m:%~\a"
@@ -55,14 +63,22 @@ case $TERM in
   ;;
 esac
 
+[[ -s "/home/zv/.rvm/scripts/rvm" ]] && source "/home/zv/.rvm/scripts/rvm"
+
+setopt prompt_subst
+autoload colors zsh/terminfo
+colors
+
+# export RPS1='$(__git_prompt)'
+
 export HISTFILE=~/.zsh_history
 export HISTSIZE=50000
 export SAVEHIST=50000
 
 export IPP=/home/zv/intel/ipp/6.1.2.051/ia32
-export EASYVISION=/home/zv/custom_builds/easyVision
+export EASYVISION=/home/zv/upstream/easyVision
 export LD_LIBRARY_PATH=$IPP/sharedlib
-export CUDA=/home/zv/custom_builds/CUDA
+export CUDA=/home/zv/upstream/CUDA
 
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward

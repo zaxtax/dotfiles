@@ -82,12 +82,12 @@ If the new path's directories does not exist, create them."
   (setq desktop-base-file-name "emacs-desktop")
 
   ;; remove desktop after it's been read
-  (add-hook 'desktop-after-read-hook
-	    '(lambda ()
-	       ;; desktop-remove clears desktop-dirname
-	       (setq desktop-dirname-tmp desktop-dirname)
-	       (desktop-remove)
-	       (setq desktop-dirname desktop-dirname-tmp)))
+  ;; (add-hook 'desktop-after-read-hook
+  ;; 	    '(lambda ()
+  ;; 	       ;; desktop-remove clears desktop-dirname
+  ;; 	       (setq desktop-dirname-tmp desktop-dirname)
+  ;; 	       (desktop-remove)
+  ;; 	       (setq desktop-dirname desktop-dirname-tmp)))
 
   (defun saved-session ()
     (file-exists-p (concat desktop-dirname "/" desktop-base-file-name)))
@@ -152,24 +152,10 @@ If the new path's directories does not exist, create them."
            (set-variable 'indent-tabs-mode nil) )))
 
 ;; Agda2
-;;(add-to-list 'load-path "/home/zv/custom_builds/elisp/agda")
+;;(add-to-list 'load-path "/home/zv/upstream/elisp/agda")
 ;;(require 'agda2)
 
-;; Planner Mode
-(add-to-list 'load-path "~/custom_builds/elisp/muse/lisp")
-(add-to-list 'load-path "~/custom_builds/elisp/planner")
-(add-to-list 'load-path "~/custom_builds/elisp/remember")
-(add-to-list 'load-path "~/custom_builds/elisp/zenburn-emacs")
-
-(setq planner-project "WikiPlanner")
-(setq muse-project-alist
-      '(("WikiPlanner"
-	 ("~/plans"   ;; Or wherever you want your planner files to be
-	  :default "index"
-	  :major-mode planner-mode
-	  :visit-link planner-visit-link))))
-(require 'planner)
-
+(add-to-list 'load-path "/home/zv/upstream/elisp/zenburn-emacs")
 (require 'color-theme-zenburn)
 (color-theme-zenburn)
 
@@ -180,6 +166,73 @@ If the new path's directories does not exist, create them."
 (mouse-wheel-mode)
 ;;(set-scroll-bar-mode 'right)
 (setq scroll-step 1)
+
+;;; Org-mode
+(add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
+(require 'org)
+
+;; Standard key bindings
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-ido-switchb)
+(setq org-remember-templates
+      '(("Tasks" ?t "* TODO %?\n  %i\nAdded: %U\n  %a" "~/notes/organizer.org")
+        ("Appointments" ?a "* Appointment: %?\n%^T\n%i\n  %a" "~/notes/organizer.org")))
+(setq remember-annotation-functions '(org-remember-annotation))
+(setq remember-handler-functions '(org-remember-handler))
+(eval-after-load 'remember
+  '(add-hook 'remember-mode-hook 'org-remember-apply-template))
+(global-set-key (kbd "C-c r") 'remember)                       
+
+(setq org-todo-keywords '((sequence "TODO" "STARTED" "WAITING" "NEXT" "|" "DONE" "DEFERRED")))
+
+(setq org-agenda-custom-commands
+    '(("w" todo "WAITING" nil) 
+      ("n" todo "NEXT" nil)
+      ("c" todo "DONE|DEFERRED|CANCELLED" nil)
+      ("d" "Agenda + Next Actions" ((agenda) (todo "NEXT")))))
+(setq org-startup-folded nil)
+(setq org-agenda-include-diary t)   
+(setq org-agenda-include-all-todo t)
+(setq org-deadline-warning-days 30)
+(setq org-agenda-todo-ignore-with-date t)
+
+;; Org-habits
+(add-to-list 'org-modules 'org-habit)
+(require 'org-habit)
+(setq org-habit-show-habits-only-for-today t)
+
+(setq org-agenda-sorting-strategy
+      (quote ((agenda habit-down time-up user-defined-up priority-down effort-up category-keep)
+              (todo category-up priority-down effort-up)
+              (tags category-up priority-down effort-up)
+              (search category-up))))
+
+;; Task Complete bindings
+(eval-after-load "org"
+  '(progn
+     (define-prefix-command 'org-todo-state-map)
+
+     (define-key org-mode-map "\C-cx" 'org-todo-state-map)
+
+     (define-key org-todo-state-map "x"
+       #'(lambda nil (interactive) (org-todo "TODO")))
+     (define-key org-todo-state-map "d"
+       #'(lambda nil (interactive) (org-todo "DONE")))
+     (define-key org-todo-state-map "f"
+       #'(lambda nil (interactive) (org-todo "DEFERRED")))
+     (define-key org-todo-state-map "s"
+       #'(lambda nil (interactive) (org-todo "STARTED")))
+     (define-key org-todo-state-map "w"
+       #'(lambda nil (interactive) (org-todo "WAITING")))))
+
+;; For MobileOrg
+(setq org-directory "~/notes/")
+(setq org-mobile-files (quote ("organizer.org")))
+(setq org-mobile-inbox-for-pull "~/notes/inbox.org")
+(setq org-mobile-directory "~/Dropbox/orgfiles/")
+(setq org-mobile-force-id-on-agenda-items nil)
+(setq org-agenda-skip-scheduled-if-done t)
 
 (require 'slime)
 (eval-after-load "slime"
@@ -193,14 +246,11 @@ If the new path's directories does not exist, create them."
      (setq slime-complete-symbol*-fancy t)
      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
      (slime-setup)))
-(add-to-list 'slime-lisp-implementations '(sbcl ("sbcl")))
 (add-hook 'clojure-mode '(lambda () (paredit-mode t)))
 
 ;; This is where slime is loaded.
 ;; (setq inferior-lisp-program "/usr/bin/sbcl")
 ;; (add-to-list 'load-path "/home/zv/.sbcl/site/slime")
-
-
 (setq auto-mode-alist
       (append auto-mode-alist
               '(("\\.[hg]s$"  . haskell-mode)
@@ -222,8 +272,8 @@ If the new path's directories does not exist, create them."
 (autoload (quote switch-to-haskell) "inf-haskell"
   "Show the inferior-haskell buffer.  Start the process if needed." t nil)
 
-(load "/home/zv/.emacs.d/js2.elc")
-(autoload 'js2-mode "js2" nil t)
+(load "/home/zv/.emacs.d/js2-mode.elc")
+(autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;; Set up matlab-mode to load on .m files
@@ -276,3 +326,19 @@ Word files dead." t)
         (setq text-mode-hook 'darkroom-mode)
 
 )
+(add-to-list 'load-path "~/.emacs.d/android-mode")
+(require 'android-mode)
+(setq android-mode-sdk-dir "~/upstream/android-sdk-linux")
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(muse-project-alist (quote (("WikiPlanner" ("~/plans" :default "index" :major-mode planner-mode :visit-link planner-visit-link)))))
+ '(org-agenda-files (quote ("~/notes/organizer.org"))))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )
