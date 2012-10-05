@@ -116,12 +116,14 @@ If the new path's directories does not exist, create them."
   (defun session-save ()
     "Save an emacs session."
     (interactive)
+    (wg-update-all-workgroups)
+    (wg-save "~/.emacs.d/workgroups")
     (if (saved-session)
 	(if (y-or-n-p "Overwrite existing desktop? ")
 	    (desktop-save-in-desktop-dir)
 	  (message "Session not saved."))
-      (desktop-save-in-desktop-dir))
-    (wg-save "~/.emacs.d/workgroups"))
+      (desktop-save-in-desktop-dir)))
+
   
   ;; ask user whether to restore desktop at start-up
   (add-hook 'after-init-hook
