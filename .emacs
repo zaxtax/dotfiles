@@ -6,7 +6,8 @@
 (when
     (load
      (expand-file-name "~/.emacs.d/elpa/package.el"))
-  (package-initialize))
+    (require 'package)
+    (package-initialize))
 
 (when window-system 
 ;;   (set-background-color "black")
@@ -19,10 +20,15 @@
    (set-face-font 'default "6x10")
    (set-face-font 'tooltip "6x10"))
 
+(require 'cl)
+
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (transient-mark-mode 1)
 (setq inhibit-splash-screen t)
+
+(setq x-select-enable-clipboard t)
+;(setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
 
 (setq make-backup-files nil)
 (setq auto-save-default nil)
@@ -64,6 +70,12 @@ If the new path's directories does not exist, create them."
 (global-set-key (key "M-<right>") 'windmove-right)        ; move to right window
 (global-set-key (key "M-<up>") 'windmove-up)              ; move to upper window
 (global-set-key (key "M-<down>") 'windmove-down)          ; move to downer window
+
+;; Workgroups
+(add-to-list 'load-path "~/.emacs.d")
+(require 'workgroups)
+(setq wg-prefix-key (kbd "C-c w"))
+(workgroups-mode 1)
 
 (load "/usr/share/emacs/site-lisp/proofgeneral/generic/proof-site.el")
 
@@ -108,15 +120,18 @@ If the new path's directories does not exist, create them."
 	(if (y-or-n-p "Overwrite existing desktop? ")
 	    (desktop-save-in-desktop-dir)
 	  (message "Session not saved."))
-      (desktop-save-in-desktop-dir)))
+      (desktop-save-in-desktop-dir))
+    (wg-save "~/.emacs.d/workgroups"))
   
   ;; ask user whether to restore desktop at start-up
   (add-hook 'after-init-hook
 	    '(lambda ()
 	       (if (saved-session)
 		   (if (y-or-n-p "Restore desktop? ")
-		       (session-restore))))))
-  
+		       (progn
+			 (session-restore)
+			 (org-agenda-list)
+			 (wg-load "~/.emacs.d/workgroups")))))))
 
 ;; Dynamic Completion
 (load-library "completion")                                                    
@@ -175,9 +190,10 @@ If the new path's directories does not exist, create them."
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-ido-switchb)
+
 (setq org-remember-templates
-      '(("Tasks" ?t "* TODO %?\n  %i\nAdded: %U\n  %a" "~/notes/organizer.org")
-        ("Appointments" ?a "* Appointment: %?\n%^T\n%i\n  %a" "~/notes/organizer.org")))
+      '(("Tasks" ?t "* TODO %?\n  %i\nAdded: %U\n  %a" "~/notes/orgfiles/organizer.org")
+        ("Appointments" ?a "* Appointment: %?\n%^T\n%i\n  %a" "~/notes/orgfiles/organizer.org")))
 (setq remember-annotation-functions '(org-remember-annotation))
 (setq remember-handler-functions '(org-remember-handler))
 (eval-after-load 'remember
@@ -192,6 +208,7 @@ If the new path's directories does not exist, create them."
       ("c" todo "DONE|DEFERRED|CANCELLED" nil)
       ("d" "Agenda + Next Actions" ((agenda) (todo "NEXT")))))
 (setq org-startup-folded nil)
+(setq org-log-done t)
 (setq org-agenda-include-diary t)   
 (setq org-agenda-include-all-todo t)
 (setq org-deadline-warning-days 30)
@@ -227,14 +244,14 @@ If the new path's directories does not exist, create them."
        #'(lambda nil (interactive) (org-todo "WAITING")))))
 
 ;; For MobileOrg
-(setq org-directory "~/notes/")
+(setq org-directory "~/notes/orgfiles/")
 (setq org-mobile-files (quote ("organizer.org")))
-(setq org-mobile-inbox-for-pull "~/notes/inbox.org")
+(setq org-mobile-inbox-for-pull "~/notes/orgfiles/inbox.org")
 (setq org-mobile-directory "~/Dropbox/orgfiles/")
 (setq org-mobile-force-id-on-agenda-items nil)
 (setq org-agenda-skip-scheduled-if-done t)
 
-(require 'slime)
+;;(require 'slime)
 (eval-after-load "slime"
   '(progn
      ;; fancy slime startup
@@ -275,6 +292,9 @@ If the new path's directories does not exist, create them."
 (load "/home/zv/.emacs.d/js2-mode.elc")
 (autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+
+;; Markdown
+(add-to-list 'auto-mode-alist '("\\.\\(md\\|markdown\\)$" . markdown-mode))
 
 ;; Set up matlab-mode to load on .m files
 (load "/home/zv/.emacs.d/matlab.el")
@@ -335,7 +355,7 @@ Word files dead." t)
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(muse-project-alist (quote (("WikiPlanner" ("~/plans" :default "index" :major-mode planner-mode :visit-link planner-visit-link)))))
- '(org-agenda-files (quote ("~/notes/organizer.org"))))
+ '(org-agenda-files (quote ("~/notes/orgfiles/work.org" "~/notes/orgfiles/organizer.org"))))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
