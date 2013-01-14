@@ -26,6 +26,7 @@
 (tool-bar-mode -1)
 (transient-mark-mode 1)
 (setq inhibit-splash-screen t)
+(setq column-number-mode t)
 
 (setq x-select-enable-clipboard t)
 ;(setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
@@ -167,6 +168,10 @@ If the new path's directories does not exist, create them."
            (set-variable 'py-indent-offset 4)
            (set-variable 'py-smart-indentation t)
            (set-variable 'indent-tabs-mode nil) )))
+(require 'flymake-easy)
+(require 'flymake-python-pyflakes)
+(add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
+(setq flymake-python-pyflakes-executable "flake8")
 
 ;; Agda2
 ;;(add-to-list 'load-path "/home/zv/upstream/elisp/agda")
@@ -297,6 +302,10 @@ If the new path's directories does not exist, create them."
 
 ;; Markdown
 (add-to-list 'auto-mode-alist '("\\.\\(md\\|markdown\\)$" . markdown-mode))
+
+(require 'window-number)
+(window-number-mode)
+(window-number-meta-mode)
 
 ;; Set up matlab-mode to load on .m files
 (load "/home/zv/.emacs.d/matlab.el")
