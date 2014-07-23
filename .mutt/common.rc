@@ -1,0 +1,28 @@
+# Change the following line to a different editor you prefer.
+set editor = "emacs -nw"
+
+set ssl_starttls=yes
+set ssl_force_tls=yes
+
+set header_cache=~/.mutt/cache/headers
+set message_cachedir=~/.mutt/cache/bodies
+set certificate_file=~/.mutt/certificates
+set move = no
+set include
+set sort = 'threads'
+set sort_aux = 'reverse-last-date-received'
+set auto_tag = yes
+set sidebar_visible = no
+ignore "Authentication-Results:"
+ignore "DomainKey-Signature:"
+ignore "DKIM-Signature:"
+hdr_order Date From To Cc
+alternative_order text/plain text/html *
+auto_view text/html
+bind editor <Tab> complete-query
+bind editor ^T complete
+bind editor <space> noop 
+
+set markers=no
+set query_command = "lbdbq '%s'"
+source ~/.mutt/themes/z.theme
