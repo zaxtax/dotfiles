@@ -1,26 +1,20 @@
-;;; This was installed by package-install.el.
-;;; This provides support for the package system and
-;;; interfacing with ELPA, the package archive.
-;;; Move this code earlier if you want to reference
-;;; packages in your .emacs.
-(when
-    (load
-     (expand-file-name "~/.emacs.d/elpa/package.el"))
-    (require 'package)
-    (package-initialize))
-
 (when window-system 
-;;   (set-background-color "black")
-;;   (set-foreground-color "green")
-;;   (set-cursor-color "white")
-;;   (set-face-foreground 'region "black")
-;;   (set-face-background 'region "green")
-;;   (set-face-foreground 'mode-line "gray15")
-;;   (set-face-background 'mode-line "black")
-   (set-face-font 'default "6x10")
+   ;(set-face-font 'default "6x10")
+   (set-frame-font "-PfEd-DejaVu Sans Mono-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1")
+   (set-face-attribute 'default nil :height 90)
+   (setq-default line-spacing 2)
    (set-face-font 'tooltip "6x10"))
 
 (require 'cl)
+
+(require 'package)
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
+(package-initialize)
+
+;(add-to-list 'load-path "~/.emacs.d")
+(require 'rainbow-delimiters)
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -33,6 +27,8 @@
 
 (setq make-backup-files nil)
 (setq auto-save-default nil)
+
+;(setq temporary-file-directory "~/.emacs.d/tmp/")
 
 ; return a backup file path of a give file path
 ; with full directory mirroring from a root dir
@@ -72,13 +68,71 @@ If the new path's directories does not exist, create them."
 (global-set-key (key "M-<up>") 'windmove-up)              ; move to upper window
 (global-set-key (key "M-<down>") 'windmove-down)          ; move to downer window
 
+(setenv "LOCAL_MAPLE" "/home/zv/Desktop/maple18/bin/maple")
+(setenv "PATH" (concat "/home/zv/.lein/bin:"
+		       "/home/zv/.local/bin:"
+		       "/home/zv/upstream/android-sdk-linux/tools:"
+		       "/home/zv/Desktop/maple18/bin:"
+		       "/home/zv/.cabal/bin:"
+		       "/home/zv/.cargo/bin:"
+		       "/sbin:/usr/sbin:"
+		       (getenv "PATH")))
+
+;; Flyspell
+(when (executable-find "hunspell")
+  (setq-default ispell-program-name "hunspell")
+  (setq ispell-really-hunspell t))
+
+(dolist (hook '(text-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode 1))))
+(dolist (hook '(change-log-mode-hook log-edit-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode -1))))
+
+(eval-after-load "flyspell"
+  '(progn
+     (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+     (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+
+(defun flyspell-generic-textmode-verify ()
+  "Used for `flyspell-generic-check-word-predicate' in text modes."
+  ;; (point) is next char after the word. Must check one char before.
+  (let ((f (get-text-property (- (point) 1) 'face)))
+    (not (memq f '(markdown-pre-face markdown-language-keyword-face)))))
+
+(setq flyspell-generic-check-word-predicate 'flyspell-generic-textmode-verify)
+(add-hook 'markdown-mode-hook 'flyspell-mode)
+
 ;; Workgroups
-(add-to-list 'load-path "~/.emacs.d")
 (require 'workgroups)
 (setq wg-prefix-key (kbd "C-c w"))
 (workgroups-mode 1)
 
-(load "/usr/share/emacs/site-lisp/proofgeneral/generic/proof-site.el")
+;; ESS settings
+(autoload 'r-mode "ess-site.el" "ESS" t)
+(add-to-list 'auto-mode-alist '("\\.R$" . r-mode))
+
+(defun read-lines (file)
+  "Return a list of lines in FILE."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (split-string
+     (buffer-string) "\n" t)))
+
+(add-hook 'ess-mode-hook
+	    '(lambda()
+	       (setq ess-my-extra-R-function-keywords
+		     (read-lines "~/.emacs.d/R-function-names.txt"))
+	       (setq ess-R-mode-font-lock-keywords
+		     (append ess-R-mode-font-lock-keywords
+			     (list (cons (concat "\\<" (regexp-opt
+							ess-my-extra-R-function-keywords 'enc-paren) "\\>")
+					 'font-lock-function-name-face))))))
+
+;; Writegood
+(add-to-list 'load-path "~/.emacs.d/writegood-mode")
+(require 'writegood-mode)
+(global-set-key "\C-cg" 'writegood-mode)
+
 
 (require 'sclang)
 (require 'ido)
@@ -141,6 +195,8 @@ If the new path's directories does not exist, create them."
 (dynamic-completion-mode) 
 (global-set-key (kbd "M-<RETURN>") 'complete)
 
+(cua-selection-mode 1) ;; only for rectangles
+
 ;; Hide/Show tag
 (global-set-key (kbd "M-+") 'hs-toggle-hiding)
 
@@ -156,26 +212,31 @@ If the new path's directories does not exist, create them."
 (autoload 'tuareg-mode "tuareg" "Major mode for editing Caml code" t)
 (autoload 'camldebug "camldebug" "Run the Caml debugger" t)
 
+;; rust
+(add-hook 'rust-mode-hook 'cargo-minor-mode)
+(add-to-list 'exec-path "/home/zv/.cargo/bin")
+(add-hook 'rust-mode-hook
+          (lambda ()
+            (local-set-key (kbd "C-c <tab>") #'rust-format-buffer)))
+(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+
 (require 'python)
 (autoload 'python-mode "python-mode" "Mode for editing Python source files")
 (add-to-list 'auto-mode-alist '("\\.py" . python-mode))
+
 (setq interpreter-mode-alist
       (cons '("python" . python-mode)
           interpreter-mode-alist)
 
       python-mode-hook
       '(lambda () (progn
-           (set-variable 'py-indent-offset 4)
            (set-variable 'py-smart-indentation t)
            (set-variable 'indent-tabs-mode nil) )))
+
 (require 'flymake-easy)
 (require 'flymake-python-pyflakes)
 (add-hook 'python-mode-hook 'flymake-python-pyflakes-load)
 (setq flymake-python-pyflakes-executable "flake8")
-
-;; Agda2
-;;(add-to-list 'load-path "/home/zv/upstream/elisp/agda")
-;;(require 'agda2)
 
 (add-to-list 'load-path "/home/zv/upstream/elisp/zenburn-emacs")
 (require 'color-theme-zenburn)
@@ -192,6 +253,13 @@ If the new path's directories does not exist, create them."
 ;;; Org-mode
 (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 (require 'org)
+(require 'org-bullets)
+(require 'ox-md)
+(require 'ox-beamer)
+(require 'ox-twbs)
+(require 'ox-reveal)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+(setq org-html-postamble nil)
 
 ;; Standard key bindings
 (global-set-key "\C-cl" 'org-store-link)
@@ -250,6 +318,9 @@ If the new path's directories does not exist, create them."
      (define-key org-todo-state-map "w"
        #'(lambda nil (interactive) (org-todo "WAITING")))))
 
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "google-chrome-beta")
+
 ;; For MobileOrg
 (setq org-directory "~/notes/orgfiles/")
 (setq org-mobile-files (quote ("organizer.org")))
@@ -258,23 +329,28 @@ If the new path's directories does not exist, create them."
 (setq org-mobile-force-id-on-agenda-items nil)
 (setq org-agenda-skip-scheduled-if-done t)
 
-;;(require 'slime)
-(eval-after-load "slime"
-  '(progn
-     ;; fancy slime startup
-     (add-to-list 'load-path "~/.sbcl/site/slime/contrib")
-     (require 'slime-banner)
-     (slime-banner-init)
-     ;; fuzzy-completion
-     (require 'slime-fuzzy)
-     (setq slime-complete-symbol*-fancy t)
-     (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
-     (slime-setup)))
-(add-hook 'clojure-mode '(lambda () (paredit-mode t)))
+;; ;;(require 'slime)
+;; (eval-after-load "slime"
+;;   '(progn
+;;      ;; fancy slime startup
+;;      (add-to-list 'load-path "~/.sbcl/site/slime/contrib")
+;;      (require 'slime-banner)
+;;      (slime-banner-init)
+;;      ;; fuzzy-completion
+;;      (require 'slime-fuzzy)
+;;      (setq slime-complete-symbol*-fancy t)
+;;      (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
+;;      (slime-setup)))
+;; (add-hook 'clojure-mode '(lambda () (paredit-mode t)))
 
 ;; This is where slime is loaded.
 ;; (setq inferior-lisp-program "/usr/bin/sbcl")
 ;; (add-to-list 'load-path "/home/zv/.sbcl/site/slime")
+
+(add-hook 'haskell-mode-hook 'rainbow-delimiters-mode)
+(require 'hindent)
+(add-hook 'haskell-mode-hook #'hindent-mode)
+
 (setq auto-mode-alist
       (append auto-mode-alist
               '(("\\.[hg]s$"  . haskell-mode)
@@ -284,21 +360,44 @@ If the new path's directories does not exist, create them."
    "Major mode for editing Haskell scripts." t)
 (autoload 'literate-haskell-mode "haskell-mode"
    "Major mode for editing literate Haskell scripts." t)
+
 (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 ;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 (add-hook 'haskell-mode-hook 'turn-on-font-lock)
+
 (autoload 'run-ghci "haskell-ghci"
   "Go to the *ghci* buffer" t nil)
 (set-variable 'haskell-program-name "ghci")
 (defalias 'run-haskell (quote switch-to-haskell))
-(autoload (quote switch-to-haskell) "inf-haskell"
+(autoload 'switch-to-haskell "inf-haskell"
   "Show the inferior-haskell buffer.  Start the process if needed." t nil)
 
-(load "/home/zv/.emacs.d/js2-mode.elc")
+(defface ghc-face-warn
+  '((((class color) (background dark)) (:bold t :underline "wheat"))
+    (((class color) (background light)) (:background "LightBlue2"))
+    (t (:bold t)))
+  "Face used for marking warning lines."
+  :group 'ghc)
+
+(defface ghc-face-error
+  '((((class color) (background dark)) (:background "maroon"))
+    (((class color) (background light)) (:background "LightPink"))
+    (t (:bold t)))
+  "Face used for marking error lines."
+  :group 'ghc)
+
 (autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+
+(require 'multi-web-mode)
+(setq mweb-default-major-mode 'html-mode)
+(setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
+                  (js-mode "<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>" "</script>")
+                  (css-mode "<style +type=\"text/css\"[^>]*>" "</style>")))
+(setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
+(multi-web-global-mode 1)
 
 ;; Markdown
 (add-to-list 'auto-mode-alist '("\\.\\(md\\|markdown\\)$" . markdown-mode))
@@ -308,7 +407,6 @@ If the new path's directories does not exist, create them."
 (window-number-meta-mode)
 
 ;; Set up matlab-mode to load on .m files
-(load "/home/zv/.emacs.d/matlab.el")
 (autoload 'matlab-mode "matlab" "Enter MATLAB mode." t)
 (setq auto-mode-alist (cons '("\\.m\\'" . matlab-mode) auto-mode-alist))
 (autoload 'matlab-shell "matlab" "Interactive MATLAB mode." t)
@@ -319,9 +417,7 @@ If the new path's directories does not exist, create them."
 (defun my-matlab-mode-hook ()
   (setq fill-column 76))		; where auto-fill should wrap
 (add-hook 'matlab-mode-hook 'my-matlab-mode-hook)
-
 (setq matlab-shell-command-switches "-nojvm") 
-
 
 ;;;;Enable undoc; a mode which edits MS Word .doc files.
 ;;;;http://www.ccs.neu.edu/home/guttman/undoc.el
@@ -330,7 +426,8 @@ Word files dead." t)
 (autoload 'undoc-current-buffer "undoc" "" t)
 (autoload 'undoc-region-after-mime-decode "undoc" "" t)
 
-(global-set-key [(control tab)] 'bury-buffer)
+;;(global-set-key [(control tab)] 'bury-buffer)
+(scroll-bar-mode -1)
 
 (defun darkroom-mode ()
         (interactive)
@@ -354,22 +451,33 @@ Word files dead." t)
 
         (move-to-left-margin 0 1)
         (auto-fill-mode)
-        (setq text-mode-hook 'darkroom-mode)
+        (setq text-mode-hook 'darkroom-mode)) 
 
-)
-(add-to-list 'load-path "~/.emacs.d/android-mode")
-(require 'android-mode)
-(setq android-mode-sdk-dir "~/upstream/android-sdk-linux")
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(browse-url-browser-function (quote browse-url-default-browser))
+ '(hindent-style "johan-tibell")
  '(muse-project-alist (quote (("WikiPlanner" ("~/plans" :default "index" :major-mode planner-mode :visit-link planner-visit-link)))))
- '(org-agenda-files (quote ("~/notes/orgfiles/work.org" "~/notes/orgfiles/organizer.org"))))
+ '(org-agenda-files (quote ("~/notes/orgfiles/work.org" "~/notes/orgfiles/organizer.org")))
+ '(python-indent-guess-indent-offset nil)
+ '(python-indent-offset 4)
+ '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
+
+;; (load-file (let ((coding-system-for-read 'utf-8))
+;;                 (shell-command-to-string "agda-mode locate")))
+
+;; Hakaru
+(load "/home/zv/.emacs.d/hakaru.elc")
+
+(defun simplify-region (&optional b e) 
+  (interactive "r")
+  (shell-command-on-region b e "simplify" (current-buffer) t))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  )
