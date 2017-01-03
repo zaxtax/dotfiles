@@ -138,7 +138,7 @@ export SAVEHIST=500000
 export IPP=/home/zv/intel/ipp/6.1.2.051/ia32
 export EASYVISION=/home/zv/upstream/easyVision
 export LD_LIBRARY_PATH=$IPP/sharedlib
-export CUDA=/home/zv/upstream/CUDA
+#export CUDA=/home/zv/upstream/CUDA
 
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
