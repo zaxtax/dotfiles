@@ -1,0 +1,5 @@
+keycode  34 = parenleft braceleft bracketleft braceleft guillemotleft leftdoublequotemark guillemotleft
+keycode  35 = parenright braceright bracketright braceright guillemotright rightdoublequotemark guillemotright
+keycode  18 = 9 bracketleft 9 parenleft leftsinglequotemark dead_breve leftsinglequotemark
+keycode  19 = 0 bracketright 0 parenright rightsinglequotemark dead_abovering rightsinglequotemark
+add Mod4 = Super_L
