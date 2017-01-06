@@ -9,7 +9,7 @@ Config { font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*" -- "xft:DejaVu Sans Mono-
                     , Run Memory ["-t","Mem: <usedratio>%"] 10
                     , Run Swap [] 10
     		    , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
-		    , Run Battery ["-L","50","-H","75","--high","green","--normal","yellow", "--low", "red"] 10
+		    , Run Battery ["-L","40","-H","75","--high","green","--normal","yellow", "--low", "red"] 10
                     ]
        , sepChar = "%"
        , alignSep = "}{"
