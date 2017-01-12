@@ -7,6 +7,19 @@
 
 (require 'cl)
 
+;; El-get
+(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+      (url-retrieve-synchronously
+       "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
+    (goto-char (point-max))
+    (eval-print-last-sexp)))
+
+(add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+(el-get 'sync)
+
 (require 'package)
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("marmalade" . "https://marmalade-repo.org/packages/")
@@ -67,6 +80,11 @@ If the new path's directories does not exist, create them."
 (global-set-key (key "M-<right>") 'windmove-right)        ; move to right window
 (global-set-key (key "M-<up>") 'windmove-up)              ; move to upper window
 (global-set-key (key "M-<down>") 'windmove-down)          ; move to downer window
+
+(add-hook 'prog-mode-hook (lambda () (highlight-symbol-mode)))
+(setq highlight-symbol-on-navigation-p t)
+(global-set-key (kbd "C-*") 'highlight-symbol-next)
+(global-set-key (kbd "C-#") 'highlight-symbol-prev)
 
 (setenv "LOCAL_MAPLE" "/home/zv/Desktop/maple18/bin/maple")
 (setenv "PATH" (concat "/home/zv/.lein/bin:"
