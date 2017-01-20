@@ -2,4 +2,6 @@ keycode  34 = parenleft braceleft bracketleft braceleft guillemotleft leftdouble
 keycode  35 = parenright braceright bracketright braceright guillemotright rightdoublequotemark guillemotright
 keycode  18 = 9 bracketleft 9 parenleft leftsinglequotemark dead_breve leftsinglequotemark
 keycode  19 = 0 bracketright 0 parenright rightsinglequotemark dead_abovering rightsinglequotemark
+keycode  20 = minus underscore minus underscore yen dead_belowdot yen dead_belowdot minus underscore yen dead_belowdot
+keycode  20 = minus underscore minus underscore endash emdash
 add Mod4 = Super_L
