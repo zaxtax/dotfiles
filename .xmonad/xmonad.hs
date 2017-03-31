@@ -1,7 +1,6 @@
 import XMonad
 import qualified Data.Map as M
 import qualified XMonad.Layout.LayoutHints as LayoutHints
-import XMonad.Hooks.EwmhDesktops
 import XMonad.Layout.Reflect
 import XMonad.Layout.LayoutScreens
 import XMonad.Layout.DragPane
@@ -114,15 +113,18 @@ mykeys (XConfig {modMask = modm}) = M.fromList $
    , ((0, xF86XK_AudioMute          ), spawn "ponymix toggle")
    ]
 
-main = xmonad $ ewmh $ withUrgencyHook NoUrgencyHook $ defaultConfig
+main = xmonad $ docks $ ewmh $ withUrgencyHook NoUrgencyHook $ defaultConfig
        { borderWidth        = 1
        , terminal           = "gnome-terminal"
-       , modMask		 = mod4Mask
+       , modMask            = mod4Mask
        , workspaces         = [ "IM", "F", "E", "D"] ++ map show [5,6,7,8,9,0]
-       , keys		 = (\c -> mykeys c `M.union` keys defaultConfig c) 
-       , layoutHook = layouts
-       , logHook		 = myLogHook
+       , keys		    = (\c -> mykeys c `M.union` keys defaultConfig c) 
+       , layoutHook         = layouts
+       , logHook            = myLogHook
        , focusedBorderColor = "green"
-       , handleEventHook = F.fullscreenEventHook <+> fullscreenEventHook
-       , manageHook         = manageSpawn <+> myManageHook <+> F.fullscreenManageHook <+> manageHook defaultConfig
+       , handleEventHook    = F.fullscreenEventHook <+> fullscreenEventHook
+       , manageHook         = (manageSpawn  <+>
+                               myManageHook <+>
+                               F.fullscreenManageHook <+>
+                               manageHook defaultConfig)
        }
