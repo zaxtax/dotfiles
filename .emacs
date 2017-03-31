@@ -20,8 +20,17 @@
 (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
 (el-get 'sync)
 
+
+(if (fboundp 'gnutls-available-p)
+    (fmakunbound 'gnutls-available-p))
+(setq tls-program '("gnutls-cli --tofu -p %p %h")
+      imap-ssl-program '("gnutls-cli --tofu -p %p %s")
+      smtpmail-stream-type 'starttls
+      starttls-extra-arguments '("--tofu")
+      )
+
 (require 'package)
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                          ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
@@ -70,6 +79,10 @@ If the new path's directories does not exist, create them."
     ("C-<down>"      . "\M-[1;5B")
     ("C-<right>"     . "\M-[1;5C")
     ("C-<left>"      . "\M-[1;5D")))
+
+(set-fontset-font t 'unicode "Symbola" nil 'prepend)
+(global-xah-math-input-mode 1)
+;(add-hook 'after-init-hook #'global-emojify-mode)
 
 (defun key (desc)
   (or (and window-system (read-kbd-macro desc))
