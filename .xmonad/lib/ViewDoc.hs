@@ -8,10 +8,11 @@ import XMonad.Util.ExtensibleState as XS
 import qualified Data.Set as S 
 
 import System.Posix.Types
-import XMonad
+import XMonad hiding (launch)
 import XMonad.Core
 import XMonad.Hooks.ManageHelpers
 import XMonad.Operations
+import XMonad.Actions.SpawnOn
 
 import XMonad.Prompt
 import XMonad.Prompt.Input
@@ -20,7 +21,7 @@ import System.FilePath.Posix
 import System.Posix.Process
 import System.Posix.Files
 import System.Directory
-import System.Path
+--import System.Path
 import Data.Maybe
 
 history :: String
@@ -84,7 +85,7 @@ colorSaved = withFocused (runQuery pid >=> colorSaved')
 launchDocuments :: X ()
 launchDocuments = do
   home <- io $ getHomeDirectory
-  f <- io $ Str.readFile (fromJust $ absNormPath home history)
+  f <- io $ Str.readFile (home </> history)
   g <- mapM launchFile (lines $ Str.unpack f)
   io $ writeFile history (unlines g)
 
@@ -105,7 +106,7 @@ launch prog args = forkProcess $ executeFile ("/usr/bin/" ++ prog) True args Not
 saveStateAs :: X ()
 saveStateAs = do
   curState <- io $ findDefault
-  inputPromptWithCompl defaultXPConfig ("Session " ++ parens curState) loadStates ?+ (io . changeSession)
+  inputPromptWithCompl def ("Session " ++ parens curState) loadStates ?+ (io . changeSession)
   where loadStates s = do 
           home <- getHomeDirectory
           states <- getDirectoryContents (home </> histdir)
