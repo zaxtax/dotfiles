@@ -11,7 +11,7 @@ export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 export PATH=/sbin:/usr/sbin:$PATH
 
 # clojure, local, android, maple, haskell
-export PATH=/home/zv/.lein/bin:/home/zv/.local/bin:/home/zv/upstream/android-sdk-linux/tools:/home/zv/Desktop/maple18/bin:/home/zv/.cabal/bin:/opt/ghc/8.0.1/bin:$PATH
+export PATH=/home/zv/.lein/bin:/home/zv/.local/bin:/home/zv/upstream/android-sdk-linux/tools:/home/zv/Desktop/maple2016/bin:/home/zv/.cabal/bin:/opt/ghc/bin:$PATH
 
 # perl 6
 export PATH=/home/zv/.rakudobrew/bin:$PATH
@@ -135,10 +135,12 @@ export HISTFILE=~/.zsh_history
 export HISTSIZE=500000
 export SAVEHIST=500000
 
+export R_HISTFILE=~/.Rhistory
+
 export IPP=/home/zv/intel/ipp/6.1.2.051/ia32
 export EASYVISION=/home/zv/upstream/easyVision
 export LD_LIBRARY_PATH=$IPP/sharedlib
-#export CUDA=/home/zv/upstream/CUDA
+export CUDA=/home/zv/upstream/CUDA
 
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
@@ -152,3 +154,10 @@ setopt correct \
     pushd_silent \
     pushd_ignore_dups \
     share_history
+
+# OPAM configuration
+. /home/zv/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/zv/.sdkman"
+[[ -s "/home/zv/.sdkman/bin/sdkman-init.sh" ]] && source "/home/zv/.sdkman/bin/sdkman-init.sh"
