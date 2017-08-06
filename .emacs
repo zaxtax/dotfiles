@@ -99,11 +99,11 @@ If the new path's directories does not exist, create them."
 (global-set-key (kbd "C-*") 'highlight-symbol-next)
 (global-set-key (kbd "C-#") 'highlight-symbol-prev)
 
-(setenv "LOCAL_MAPLE" "/home/zv/Desktop/maple18/bin/maple")
+(setenv "LOCAL_MAPLE" "/home/zv/Desktop/maple2016/bin/maple")
 (setenv "PATH" (concat "/home/zv/.lein/bin:"
 		       "/home/zv/.local/bin:"
 		       "/home/zv/upstream/android-sdk-linux/tools:"
-		       "/home/zv/Desktop/maple18/bin:"
+		       "/home/zv/Desktop/maple2016/bin:"
 		       "/home/zv/.cabal/bin:"
 		       "/home/zv/.cargo/bin:"
 		       "/sbin:/usr/sbin:"
