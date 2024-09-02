@@ -1,0 +1,14 @@
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(transient-mark-mode 1)
+(scroll-bar-mode -1)
+(setq inhibit-splash-screen t)
+(setq column-number-mode t)
+
+;disable backup
+(setq backup-inhibited t)
+;disable auto save
+(setq auto-save-default nil)
+
+(load-theme 'elegant t)
+(package-initialize)
