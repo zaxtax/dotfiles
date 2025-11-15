@@ -1,23 +1,25 @@
 # The following lines were added by compinstall
-zstyle :compinstall filename '/home/zv/.zshrc'
+zstyle :compinstall filename '/home/z/.zshrc'
 
 zstyle ':completion:*' completer _complete
 zstyle ':completion:*' menu select=1
+# End of lines added by compinstall
+
+fpath+=/home/z/.zsh_completions/conda-zsh-completion
+
 autoload -Uz compinit
 compinit
-# End of lines added by compinstall
-export GUROBI_HOME="/home/zv/upstream/gurobi550/linux64"
+
+zstyle ":conda_zsh_completion:*" use-groups true
+
+# source ~/upstream/fzf-tab/fzf-tab.plugin.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 export PATH=/sbin:/usr/sbin:$PATH
 
-# clojure, local, android, maple, haskell
-export PATH=/home/zv/.lein/bin:/home/zv/.local/bin:/home/zv/upstream/android-sdk-linux/tools:/home/zv/Desktop/maple2016/bin:/home/zv/.cabal/bin:/opt/ghc/bin:$PATH
-
-# perl 6
-export PATH=/home/zv/.rakudobrew/bin:$PATH
-
-export GRB_LICENSE_FILE=/home/zv/upstream/gurobi500/gurobi.lic
-# export MATLAB_JAVA=/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0/jre
+# clojure, local, android, haskell
+export PATH=/home/z/.lein/bin:/home/z/.local/bin:/home/z/upstream/android-sdk-linux/tools:/home/z/.cabal/bin:/home/z/bin:$PATH
 
 # go
 export GOROOT=$HOME/upstream/go
@@ -29,16 +31,18 @@ export PATH=$HOME/.cargo/bin:$PATH
 export RUST_SRC_PATH=$HOME/upstream/rust/src
 
 # elm
-export PATH=$HOME/upstream/elm-platform/installers/Elm-Platform/0.15.1/.cabal-sandbox/bin:$PATH
+# export PATH=$HOME/upstream/elm-platform/installers/Elm-Platform/0.15.1/.cabal-sandbox/bin:$PATH
 
-# hakaru
-export LOCAL_MAPLE="`which maple`"
+# pyenv
+# export PATH="/home/z/.pyenv/bin:$PATH"
+# eval "$(pyenv init -)"
+# eval "$(pyenv virtualenv-init -)"
 
 # make the prompt look like [user@host /dir] $
 RCMD_CMD=ssh;   export RCMD_CMD
 export PAGER=most
-export VISUALWORKS=/home/zv/vw7.6nc
-export BROWSER=google-chrome
+export VISUALWORKS=/home/z/vw7.6nc
+export BROWSER=firefox
 
 if [ -z "$GPG_AGENT_INFO" ] ; then
      if [ -f $HOME/.gpg-agent-info ] ; then
@@ -47,14 +51,32 @@ if [ -z "$GPG_AGENT_INFO" ] ; then
 fi
 export GPG_TTY=$(tty)
 
+# wmname LG3D
+
 alias mathematica='mathematica -defaultvisual'
 alias ls='ls --color'
 alias todo="emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"t\")' 2> /dev/null "
 alias today="emacs -batch -l ~/.emacs -eval '(org-batch-agenda \"a\")' 2> /dev/null "
+alias cclip='xclip -selection clipboard'
+
+alias icat='kitty +kitten icat'
+alias idot='dot -Tpng -Nfontcolor=white -Ncolor=white -Nbgcolor=green -Gbgcolor=transparent -Ecolor=white | icat'
+
+
+. /usr/lib/git-core/git-sh-prompt
+GIT_PS1_SHOWCOLORHINTS=1
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
 
 function git_prompt_info() {
   ref=$(git symbolic-ref HEAD 2> /dev/null) || return
   echo " (${ref#refs/heads/})"
+}
+
+function pixi_activate() {
+    # default to current directory if no path is given
+    local manifest_path="${1:-.}"
+    eval "$(pixi shell-hook --manifest-path $manifest_path)"
 }
 
 export MARKPATH=$HOME/.marks
@@ -102,23 +124,19 @@ case $TERM in
 esac
 
 precmd () {
-  PS1='[%n@%m %1d$(git_prompt_info)]%# ';
+  PS1='[$PIXI_PROMPT%F{green}%n@%m%f %F{blue}%1d%f$(__git_ps1 " (%s)")]%# ';
   [[ -t 1 ]] || return
   case $TERM in
-    *xterm*|rxvt|urxvt|rxvt-unicode|(dt|k|E|a)term) print -Pn "\e]2;%n@%m:%~\a"
+    *xterm*|rxvt|urxvt|rxvt-unicode|(dt|k|E|a)term) print -Pn "\e]2;%n@%m:%1d\a"
     ;;
-    screen*) print -Pn "\e\"%n@%m:%~\e\134"
+    screen*) print -Pn "\e\"%n@%m:%1d\e\134"
   esac
 }
-
-[[ -s "/home/zv/.rvm/scripts/rvm" ]] && source "/home/zv/.rvm/scripts/rvm"
 
 setopt prompt_subst
 setopt interactivecomments
 autoload colors zsh/terminfo
 colors
-
-# export RPS1='$(__git_prompt)'
 
 function cabal_sandbox_info() {
     cabal_files=(*.cabal(N))
@@ -132,15 +150,14 @@ function cabal_sandbox_info() {
 RPROMPT="\$(cabal_sandbox_info) $RPROMPT"
 
 export HISTFILE=~/.zsh_history
-export HISTSIZE=500000
-export SAVEHIST=500000
+export HISTSIZE=5000000
+export SAVEHIST=5000000
 
 export R_HISTFILE=~/.Rhistory
 
-export IPP=/home/zv/intel/ipp/6.1.2.051/ia32
-export EASYVISION=/home/zv/upstream/easyVision
+export IPP=/home/z/intel/ipp/6.1.2.051/ia32
+export EASYVISION=/home/z/upstream/easyVision
 export LD_LIBRARY_PATH=$IPP/sharedlib
-export CUDA=/home/zv/upstream/CUDA
 
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
@@ -149,15 +166,43 @@ bindkey '^[[D' backward-char
 
 setopt correct \
     appendhistory \
+    incappendhistory \
     histverify \
     auto_pushd \
     pushd_silent \
+    pushdminus \
     pushd_ignore_dups \
-    share_history
-
+    share_history \
+    complete_aliases
 # OPAM configuration
-. /home/zv/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+. /home/z/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/zv/.sdkman"
-[[ -s "/home/zv/.sdkman/bin/sdkman-init.sh" ]] && source "/home/zv/.sdkman/bin/sdkman-init.sh"
+# n and node
+export N_PREFIX=/home/z/upstream/n
+export PATH=$N_PREFIX/bin:$PATH
+
+alias wi=". ~/.local/bin/workonwrapper.sh"
+alias wo="exit"
+
+compdef _doctl doctl
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+path=('/home/z/.juliaup/bin' $path)
+export PATH
+
+# <<< juliaup initialize <<<
+
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+export PATH="/home/z/.pixi/bin:$PATH"
+
+if [[ -v PIXI_WI_ENV ]]; then
+    pixi_activate $PIXI_WI_ENV
+fi
+
+source /home/z/.config/broot/launcher/bash/br
+
+[ -f "/home/z/.ghcup/env" ] && . "/home/z/.ghcup/env" # ghcup-env

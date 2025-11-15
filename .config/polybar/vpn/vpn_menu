@@ -1,0 +1,44 @@
+#!/home/z/upstream/pixi-envs/cli/.pixi/envs/default/bin/python3.14
+
+import json
+import pathlib
+import subprocess
+import sys
+
+cwd = pathlib.Path(__file__).parent
+flags = json.load(open(cwd / "vpn_flags.json"))
+reverse_flags = {v.casefold(): k.casefold() for k, v in flags.items()}
+country_codes = json.load(open(cwd / "vpn_abbr.json"))
+
+
+try:
+    out = subprocess.check_output(
+        ["nordlayer", "gateways"], stderr=subprocess.DEVNULL
+    ).decode()
+except subprocess.CalledProcessError:
+    sys.exit(1)
+
+gateways = []
+for line in out.splitlines():
+    fields = line.split("│")
+    region = fields[0].strip()
+    if len(fields) == 3 and region != "Name/Country":
+        gateways.append(region)
+
+menu = "\n".join(gateways)
+
+try:
+    selected = subprocess.run(
+        ["rofi", "-dmenu", "-i", "-cycle", "false", "-p", "Connect to a gateway:"],
+        input=menu,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    choice = selected.stdout.strip()
+    country = choice.casefold()
+    if country in (c.casefold() for c in gateways):
+        print(f"You selected: {choice}")
+        subprocess.run(["nordlayer", "connect", country_codes[country]])
+except subprocess.CalledProcessError:
+    sys.exit(1)
